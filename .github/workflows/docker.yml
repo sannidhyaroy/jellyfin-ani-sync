@@ -1,6 +1,7 @@
 name: Build Docker Container
 
 on:
+  workflow_dispatch:
   push:
     branches: ['**']
     tags: ["v*.*"]
