@@ -3,17 +3,17 @@ name: Build Docker Container
 on:
   workflow_dispatch:
   push:
-    branches: ['**']
+    branches: ["**"]
     tags: ["v*.*"]
   pull_request:
     branches: ["master"]
   schedule:
-    - cron: '0 0 * * *' # Runs daily at 12 AM UTC (builds nightly)
+    - cron: "0 0 * * *" # Runs daily at 12 AM UTC (builds nightly)
 
 env:
   REGISTRY: ghcr.io
 
-permissions: 
+permissions:
   packages: write
 
 concurrency:
@@ -35,7 +35,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Convert image name to lowercase
         run: |
@@ -80,7 +80,7 @@ jobs:
           touch "/tmp/digests/${digest#sha256:}"
       - name: Upload digest
         if: ${{ !github.event.pull_request || github.event.pull_request.base.repo.full_name == github.event.pull_request.head.repo.full_name }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: digests
           path: /tmp/digests/*
@@ -100,7 +100,7 @@ jobs:
           GITHUB_REPOSITORY="${{ github.repository }}"
           echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
       - name: Download digests
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v4
         with:
           name: digests
           path: /tmp/digests
