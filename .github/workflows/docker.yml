@@ -1,14 +1,11 @@
 name: Build Docker Container
 
 on:
-  workflow_dispatch:
   push:
     branches: ["**"]
     tags: ["v*.*"]
   pull_request:
     branches: ["master"]
-  schedule:
-    - cron: "0 0 * * *" # Runs daily at 12 AM UTC (builds nightly)
 
 env:
   REGISTRY: ghcr.io
@@ -60,6 +57,10 @@ jobs:
         uses: docker/metadata-action@v5.0.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+            type=sha
 
       - name: Build Docker image
         id: build
