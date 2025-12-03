@@ -29,9 +29,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - linux/amd64
-          - linux/arm64/v8
+        include:
+          - platform: linux/amd64
+            digest_name: linux-amd64
+          - platform: linux/arm64/v8
+            digest_name: linux-arm64-v8
 
     steps:
       - name: Checkout repository
@@ -70,7 +72,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           provenance: true
           sbom: true
-          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=${{ !github.event.pull_request || github.event.pull_request.base.repo.full_name == github.event.pull_request.head.repo.full_name }}
+          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=${{ github.event_name != 'pull_request' || github.event.pull_request.base.repo.full_name == github.event.pull_request.head.repo.full_name }}
 
       - name: Export digest
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.base.repo.full_name == github.event.pull_request.head.repo.full_name }}
@@ -82,7 +84,7 @@ jobs:
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.base.repo.full_name == github.event.pull_request.head.repo.full_name }}
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${{ matrix.platform }}
+          name: digests-${{ matrix.digest_name }}
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
